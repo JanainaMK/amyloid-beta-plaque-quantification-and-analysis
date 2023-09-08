@@ -1,0 +1,21 @@
+name: Abeta
+
+channels:
+  - conda-forge
+  - pytorch
+  - bioconda
+
+dependencies:
+- python=3.8
+- pytorch::pytorch=1.12.0
+- pytorch::torchvision=0.13.0
+- cudatoolkit=11.3
+- matplotlib
+- scipy
+- conda-forge::python-javabridge
+- conda-forge::opencv
+- h5py
+- bioconda::python-bioformats
+- scikit-image
+- scikit-learn
+- joblib
