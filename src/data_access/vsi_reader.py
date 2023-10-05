@@ -11,7 +11,6 @@ from .iter_mix_in import IterMixIn
 
 class VsiReader(data.Dataset, IterMixIn):
 
-    FULL_INDEX = 13
     SIZE_FULL_LOAD = 4096
 
     def __init__(
@@ -23,7 +22,7 @@ class VsiReader(data.Dataset, IterMixIn):
             dtype=np.float64,
             preload=False,
             overlap_last: bool = True,
-            case: str = 'centenarian',
+            full_index: int = 13,
     ):
         self.image_reader = image_reader
         self.patch_size = patch_size
@@ -33,7 +32,7 @@ class VsiReader(data.Dataset, IterMixIn):
         self.preload = preload
         self.overlap_last = overlap_last
 
-        self.full_index = 0 if case == 'AD' else 13
+        self.full_index = full_index
         self.fully_loaded = False
 
         lvl = np.log2(downsample_lvl) if downsample_lvl != 0 else 0

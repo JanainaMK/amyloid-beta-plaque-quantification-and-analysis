@@ -8,8 +8,6 @@ import h5py
 import bioformats
 from skimage.transform import resize
 
-print(sys.path)
-
 from src.segmentation.model import unet
 from src.segmentation.evaluation import make_mask_patch_based
 import src.localisation.plaque as p
@@ -18,84 +16,77 @@ import src.localisation.whole_slide_analysis as wsa
 from src.data_access import VsiReader
 import src.util.jvm as jvm
 
+start = time.time()
+
 print('localisation started')
-parser = argparse.ArgumentParser()
-parser.add_argument('image', type=str)
-parser.add_argument('-psl', '--patch_size_localisation', default=4096, type=int)
-parser.add_argument('-pss', '--patch_size_segmentation', default=1024, type=int)
-parser.add_argument('-t', '--threshold', default=0.04, type=float)
-parser.add_argument('-ks', '--kernel_size', default=21, type=int)
-parser.add_argument('-ms', '--minimum_size', default=10, type=float)
-parser.add_argument('-df', '--downscale_factor', default=16, type=int)
-parser.add_argument('-tf', '--target_folder', default='result/images', type=str)
-parser.add_argument('-uo', '--use_otsu', action='store_true')
-parser.add_argument('-ss', '--skip_segmentation', action='store_true')
-parser.add_argument('-gpu', '--use_gpu', action='store_true')
-parser.add_argument('-c', '--case', default='', type=str)
+parser = argparse.ArgumentParser(prog='Segmentation and Localisation pipeline', description='An algorithm that can crop amyloid beta plaques from a vsi file')
+parser.add_argument('image', type=str, help='The name of the vsi file that needs to be analysed. Omit .vsi in the name.')
+parser.add_argument('-sf', '--source_folder', required=True, type=str, help='the folder in which the vsi file is located')
+parser.add_argument('-tf', '--target_folder', default='result/images', type=str, help='The folder in which to place the resulting hdf5 file.')
+parser.add_argument('-psl', '--patch_size_localisation', default=4096, type=int, help='The patch size in pixels used in the localisation step (default=4096)')
+parser.add_argument('-pss', '--patch_size_segmentation', default=1024, type=int, help='The patch size in pixels used in the segmentation step (default=1024)')
+parser.add_argument('-t', '--threshold', default=0.04, type=float, help='The minimum threshold parameter for the localisation step. Range from 0 to 1 (default=0.04)')
+parser.add_argument('-ks', '--kernel_size', default=21, type=int, help='The kernel size parameter in pixels for the localisation step (default=21)')
+parser.add_argument('-ms', '--minimum_size', default=10, type=float, help='The minimum plaque size parameter in microns for the localisation step (default=10)')
+parser.add_argument('-df', '--downscale_factor', default=16, type=int, help='The downsampling factor used for creating the grey matter segmentation (default=16)')
+parser.add_argument('-ss', '--segmentation_setting', choices=['no', 'load', 'create'], default='create', help='The way the grey matter segmentation is handled. \n \'no\' skips the segmentation \n \'load\' loads the segmentation from the result file located in the target_folder \n \'create\' creates a new segmentation and stores it in the target_folder.')
 
 
 args = parser.parse_args()
 print(args)
 
+# file
 image_name = args.image
-patch_size_localisation = args.patch_size_localisation
+vsi_root = args.source_folder
+target_folder = args.target_folder
+
+# parameters segmentation
 patch_size_segmentation = args.patch_size_segmentation
+downscale_factor = args.downscale_factor
+segmentation_setting = args.segmentation_setting
+
+# parameters localisation
+patch_size_localisation = args.patch_size_localisation
 threshold = int(args.threshold * 255)
-use_otsu = args.use_otsu
 kernel_size = args.kernel_size
 min_size_micron = args.minimum_size
 minsize = int(min_size_micron / 0.274)
-downscale_factor = args.downscale_factor
-skip_segmentation = args.skip_segmentation
-use_gpu = args.use_gpu
-case = args.case
 
 
-start = time.time()
 cuda_availible = torch.cuda.is_available()
-if use_gpu and cuda_availible:
+if segmentation_setting == 'create' and cuda_availible:
     print('cuda:', cuda_availible)
     model = unet('models/2023-03-15-unet-16x-bs16-ps256-lr0.0001/2023-03-15-unet-16x-bs16-ps256-lr0.0001-e3v49.pt')
-elif use_gpu and not cuda_availible:
-    print('GPU requested, but CUDA is not availible, exiting.')
+elif segmentation_setting == 'create' and not cuda_availible:
+    print('GPU requested, but CUDA is not available, exiting.')
     sys.exit()
 else:
     model = None
 
-# file_16x = h5py.File('dataset/AD+cent.hdf5', 'r')
-result_file = h5py.File(f'{args.target_folder}/{image_name}.hdf5', 'a')
+result_file = h5py.File(f'{target_folder}/{image_name}.hdf5', 'a')
 if 'plaques' in result_file:
     del result_file['plaques']
     print('old plaques deleted')
 plaque_group = result_file.create_group('plaques')
 
-print(case, 'case')
-if 'AD' in case:
-    vsi_root = 'dataset/Abeta images AD cohort'
-elif case == 'centenarian':
-    vsi_root = 'dataset/Abeta images 100+'
-else:
-    print('case not specified: exiting.')
-    sys.exit()
+full_index = 13 if image_name[:5] == 'Image' else 0
 
 jvm.start()
 print('starting process', time.time() - start)
 try:
-    raw_reader_0x = bioformats.ImageReader(f'{vsi_root}/{image_name}.vsi')
-    raw_reader_16x = bioformats.ImageReader(f'{vsi_root}/{image_name}.vsi')
-    vsi_reader_0x = VsiReader(raw_reader_0x, patch_size_localisation, patch_size_localisation, 0, np.uint8, False, False, case)
-    vsi_reader_16x = VsiReader(raw_reader_16x, patch_size_segmentation, patch_size_segmentation, downscale_factor, np.uint8, False, True, case)
-    print('readers loaded', time.time() - start)
-    print('0x image shape:', vsi_reader_0x.shape)
-    print('16x image shape:', vsi_reader_16x.shape)
-    print('0x patchifier shape:', vsi_reader_0x.patch_it.shape)
-    print('16x patchifier shape:', vsi_reader_16x.patch_it.shape)
+    raw_reader = bioformats.ImageReader(f'{vsi_root}/{image_name}.vsi')
 
-    if skip_segmentation:
+    # segmentation
+    vsi_reader = VsiReader(raw_reader, patch_size_segmentation, patch_size_segmentation, downscale_factor, np.uint8, False, True, full_index)
+    print('segmentation reader loaded', time.time() - start)
+    print('image shape:', vsi_reader.shape)
+    print('patchifier shape:', vsi_reader.patch_it.shape)
+
+    if segmentation_setting == 'no':
         grey_matter = None
-    elif use_gpu:
+    elif segmentation_setting == 'create':
         with torch.no_grad():
-            grey_matter = make_mask_patch_based(model, vsi_reader_16x).detach().cpu().numpy().astype(bool)
+            grey_matter = make_mask_patch_based(model, vsi_reader).detach().cpu().numpy().astype(bool)
             if 'grey-matter' in result_file:
                 del result_file['grey-matter']
             result_file.create_dataset('grey-matter', data=grey_matter)
@@ -104,16 +95,23 @@ try:
         raise FileNotFoundError(f'there is no gray matter found for {image_name}')
     else:
         grey_matter = result_file['grey-matter'][()]
-        print('grey matter found', time.time() - start)
+        print('grey matter loaded', time.time() - start)
+    print()
+
+    # localisation
+    vsi_reader = VsiReader(raw_reader, patch_size_localisation, patch_size_localisation, 0, np.uint8, False, False, full_index)
+    print('localisation reader loaded', time.time() - start)
+    print('image shape:', vsi_reader.shape)
+    print('patchifier shape:', vsi_reader.patch_it.shape)
 
     pms = []
 
-    for i in range(len(vsi_reader_0x)):
-        patch = vsi_reader_0x[i]
-        r, c = vsi_reader_0x.patch_it[i]
-        h = min(vsi_reader_0x.shape[0] - r, vsi_reader_0x.patch_size)
-        w = min(vsi_reader_0x.shape[1] - c, vsi_reader_0x.patch_size)
-        print('analysing patch', f'{i}/{len(vsi_reader_0x)}, loc:({r}, {c}), shape: ({h}, {w}), alt shape:', patch.shape)
+    for i in range(len(vsi_reader)):
+        patch = vsi_reader[i]
+        r, c = vsi_reader.patch_it[i]
+        h = min(vsi_reader.shape[0] - r, vsi_reader.patch_size)
+        w = min(vsi_reader.shape[1] - c, vsi_reader.patch_size)
+        print('analysing patch', f'{i}/{len(vsi_reader)}, loc:({r}, {c}), shape: ({h}, {w})')
 
         gm = wsa.get_grey_matter(r, c, h, w, grey_matter, downscale_factor)
         if gm.mean() < 0.01:
@@ -123,7 +121,7 @@ try:
         gm = resize(gm, (h, w))
         print('grey matter found', time.time() - start)
 
-        binary, t = pf.dab_threshold_otsu(patch, threshold) if use_otsu else pf.dab_threshold(patch, threshold)
+        binary, t = pf.dab_threshold_otsu(patch, threshold)
         binary = gm * binary
         closed = pf.closing(binary, kernel_size)
         plaques, mask = pf.find_plaques(closed, minsize, True, True)
@@ -148,6 +146,7 @@ try:
     wsa.merge_plaque_masks_from_list(pms, ccs)
     print('detections merged')
 
+    # result
     print('saving detections...')
     n = len(pms)
     plaque_group.attrs['length'] = n
@@ -155,7 +154,7 @@ try:
     areas = np.zeros(n)
     roundnesses = np.zeros(n)
     for i, pm in enumerate(pms):
-        plaque_img = vsi_reader_0x.image_reader.rdr.openBytesXYWH(0, pm.bb.x, pm.bb.y, pm.bb.w, pm.bb.h)
+        plaque_img = vsi_reader.image_reader.rdr.openBytesXYWH(0, pm.bb.x, pm.bb.y, pm.bb.w, pm.bb.h)
         plaque_img = plaque_img.reshape((pm.bb.h, pm.bb.w, 3))
 
         bbs[i] = [pm.bb.x, pm.bb.y, pm.bb.w, pm.bb.h]
@@ -194,7 +193,6 @@ try:
 
 finally:
     jvm.stop()
-    # file_16x.close()
     result_file.close()
 
 

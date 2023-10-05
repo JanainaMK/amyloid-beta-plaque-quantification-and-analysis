@@ -40,7 +40,6 @@ def make_prediction_patch_based(model: torch.nn.Module, image: VsiReader):
         c_pixel = image.shape[1] - image.patch_size if c == patch_shape[1] - 1 else c * image.patch_size
 
         result[r_pixel: r_pixel + image.patch_size, c_pixel: c_pixel + image.patch_size] = prediction
-        print('patch', r_pixel, c_pixel, 'done')
 
     return result
 
