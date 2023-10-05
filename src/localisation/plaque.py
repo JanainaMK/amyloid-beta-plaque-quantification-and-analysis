@@ -78,7 +78,6 @@ def minimum_circumscribed_circle(mask: np.ndarray):
 def roundness(mask: np.ndarray):
     d_in, _ = maximum_inscribed_circle(mask)
     d_cir, _ = minimum_circumscribed_circle(mask)
-    print(d_in, d_cir)
     return d_in / d_cir
 
 
