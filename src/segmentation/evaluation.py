@@ -1,26 +1,33 @@
+import os
 import time
 from collections import namedtuple
+import pprint
 
 import h5py
 import torch
 import numpy as np
 from torch.utils.data import DataLoader
 
-from src.data_access import ImageReader
+from src.data_access import VsiReader
 
 DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 
-def make_prediction_patch_based(model: torch.nn.Module, image: ImageReader):
+def make_prediction_patch_based(model: torch.nn.Module, image: VsiReader):
     loader = DataLoader(image, 1)
     model.to(DEVICE)
     model.eval()
     patch_shape = image.patch_it.shape
-    result = torch.zeros((image.shape[1], image.shape[2])).to(DEVICE)
+    result = torch.zeros((image.shape[0], image.shape[1])).to(DEVICE)
     row_var = 0
     time_var = time.time()
     for i, data in enumerate(loader):
-        patch = torch.Tensor(data).to(DEVICE)
+        # print(torch.cuda.get_device_name(0))
+        # print('Memory Usage:')
+        # print('Allocated:', round(torch.cuda.memory_allocated(0)/1024**3, 1), 'GB')
+        # print('Cached:   ', round(torch.cuda.memory_reserved(0)/1024**3, 1), 'GB')
+        patch = data.to(DEVICE)
+        patch = torch.permute(patch, (0, 3, 1, 2)).double()
         prediction = model(patch).detach()
 
         r = int(np.floor(i / patch_shape[1]))
@@ -29,15 +36,16 @@ def make_prediction_patch_based(model: torch.nn.Module, image: ImageReader):
             print(f'row {r} done in {time.time() - time_var} seconds')
             row_var = r
             time_var = time.time()
-        r_pixel = image.shape[1] - image.patch_size if r == patch_shape[0] - 1 else r * image.patch_size
-        c_pixel = image.shape[2] - image.patch_size if c == patch_shape[1] - 1 else c * image.patch_size
+        r_pixel = image.shape[0] - image.patch_size if r == patch_shape[0] - 1 else r * image.patch_size
+        c_pixel = image.shape[1] - image.patch_size if c == patch_shape[1] - 1 else c * image.patch_size
 
         result[r_pixel: r_pixel + image.patch_size, c_pixel: c_pixel + image.patch_size] = prediction
+        print('patch', r_pixel, c_pixel, 'done')
 
     return result
 
 
-def make_mask_patch_based(model: torch.nn.Module, image: ImageReader):
+def make_mask_patch_based(model: torch.nn.Module, image: VsiReader):
     prediction = make_prediction_patch_based(model, image)
     mask = threshold(prediction)
     return mask

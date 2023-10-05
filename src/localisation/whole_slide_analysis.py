@@ -34,7 +34,7 @@ def find_global_threshold(reader, grey_matter=None, downscale=None):
     for i in range(len(reader)):
         if grey_matter is not None:
             r, c = reader.patch_it[i]
-            gm = get_grey_matter(r, c, reader.patch_size, downscale)
+            gm = get_grey_matter(r, c, reader.patch_size_localisation, downscale)
             if gm.mean() < 0.01:
                 continue
         patch = reader[i]
