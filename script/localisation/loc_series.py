@@ -1,37 +1,48 @@
+import os
+import sys
 import subprocess
 import argparse
 
 import h5py
 
+import src.util.cli as cli
+
 print('starting')
 parser = argparse.ArgumentParser()
-parser.add_argument('-s0', '--start', default=0, type=int)
-parser.add_argument('-s1', '--stop', default=579, type=int)
-parser.add_argument('-c', '--cases', default='all', type=str)
+cli.add_io_settings(parser)
+cli.add_segmentation_settings(parser)
+cli.add_localisation_settings(parser)
+cli.add_series_settings(parser)
+parser.add_argument('-ss', '--segmentation_setting', choices=['no', 'load', 'create'], default='create', help='The way the grey matter segmentation is handled. \n \'no\' skips the segmentation \n \'load\' loads the segmentation from the result file located in the target_folder \n \'create\' creates a new segmentation and stores it in the target_folder.')
 args = parser.parse_args()
 print(args)
 
 
 start = args.start
 stop = args.stop
-cases = args.cases
-
-entry_file_path = 'dataset/AD+cent.hdf5'
-entry_file = h5py.File(entry_file_path, 'r')
+vsi_folder = args.source_folder
 
 
-names = []
-for entry_name in entry_file:
-    if entry_file[f'{entry_name}/image_file'].attrs['case'] == cases or cases == 'all':
-        names.append(entry_name)
+file_names = os.listdir(vsi_folder)
+print(len(file_names), 'files found in total')
+names = file_names[start:stop]
 
-print(len(names), 'images found')
 print('processing', stop - start, f'slides ({start} - {stop})')
 
 for i, name in enumerate(names):
-    if i < start or i >= stop:
-        continue
-    print('slide:', i)
-    subprocess.run(['python',  '-u',  'script/localisation/loc.py', name, '-uo'])
+    print('slide', i, ':', name)
+    subprocess.run([sys.executable,  '-u',  'script/localisation/loc.py', name[:-4],
+                    '--source_folder', str(args.source_folder),
+                    '--target_folder', str(args.target_folder),
+                    '--patch_size_segmentation', str(args.patch_size_segmentation),
+                    '--downscale_factor', str(args.downscale_factor),
+                    '--model_path', str(args.model_path),
+                    '--patch_size_localisation', str(args.patch_size_localisation),
+                    '--threshold', str(args.threshold),
+                    '--kernel_size', str(args.kernel_size),
+                    '--minimum_size', str(args.minimum_size),
+                    '--segmentation_setting', str(args.segmentation_setting),
+                    ])
+    print()
 print('series finished')
 

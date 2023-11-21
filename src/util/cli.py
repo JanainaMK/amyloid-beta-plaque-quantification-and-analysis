@@ -1,12 +1,10 @@
 from argparse import ArgumentParser
 
 def add_io_settings(parser: ArgumentParser):
-    parser.add_argument('image', type=str,
-                        help='The name of the vsi file that needs to be analysed. Omit .vsi in the name.')
     parser.add_argument('-sf', '--source_folder', required=True, type=str,
-                        help='the folder in which the vsi file is located')
-    parser.add_argument('-tf', '--target_folder', default='result/images', type=str,
-                        help='The folder in which to place the resulting hdf5 file.')
+                        help='the folder in which the vsi file(s) is/are located')
+    parser.add_argument('-tf', '--target_folder', required=True, type=str,
+                        help='The folder in which to place the resulting hdf5 file(s).')
 
 def add_segmentation_settings(parser: ArgumentParser):
     parser.add_argument('-pss', '--patch_size_segmentation', default=1024, type=int,
@@ -25,3 +23,9 @@ def add_localisation_settings(parser: ArgumentParser):
                         help='The kernel size parameter in pixels for the localisation step (default=21)')
     parser.add_argument('-ms', '--minimum_size', default=10, type=float,
                         help='The minimum plaque size parameter in microns for the localisation step (default=10)')
+
+def add_series_settings(parser: ArgumentParser):
+    parser.add_argument('-s0', '--start', default=0, type=int,
+                        help='The index of the file in the source folder where the script should start')
+    parser.add_argument('-s1', '--stop', default=2**32 - 1, type=int,
+                        help='The index of the file in the source folder where the script should stop (exclusive)')

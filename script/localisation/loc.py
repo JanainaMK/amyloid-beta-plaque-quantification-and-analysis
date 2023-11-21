@@ -21,6 +21,7 @@ start = time.time()
 
 print('localisation started')
 parser = argparse.ArgumentParser(prog='Segmentation and Localisation pipeline', description='An algorithm that can crop amyloid beta plaques from a vsi file')
+parser.add_argument('image', type=str, help='The name of the vsi file that needs to be analysed. Omit .vsi in the name.')
 cli.add_io_settings(parser)
 cli.add_segmentation_settings(parser)
 cli.add_localisation_settings(parser)
