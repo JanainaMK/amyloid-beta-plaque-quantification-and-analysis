@@ -15,20 +15,15 @@ import src.localisation.plaque_find as pf
 import src.localisation.whole_slide_analysis as wsa
 from src.data_access import VsiReader
 import src.util.jvm as jvm
+import src.util.cli as cli
 
 start = time.time()
 
 print('localisation started')
 parser = argparse.ArgumentParser(prog='Segmentation and Localisation pipeline', description='An algorithm that can crop amyloid beta plaques from a vsi file')
-parser.add_argument('image', type=str, help='The name of the vsi file that needs to be analysed. Omit .vsi in the name.')
-parser.add_argument('-sf', '--source_folder', required=True, type=str, help='the folder in which the vsi file is located')
-parser.add_argument('-tf', '--target_folder', default='result/images', type=str, help='The folder in which to place the resulting hdf5 file.')
-parser.add_argument('-psl', '--patch_size_localisation', default=4096, type=int, help='The patch size in pixels used in the localisation step (default=4096)')
-parser.add_argument('-pss', '--patch_size_segmentation', default=1024, type=int, help='The patch size in pixels used in the segmentation step (default=1024)')
-parser.add_argument('-t', '--threshold', default=0.04, type=float, help='The minimum threshold parameter for the localisation step. Range from 0 to 1 (default=0.04)')
-parser.add_argument('-ks', '--kernel_size', default=21, type=int, help='The kernel size parameter in pixels for the localisation step (default=21)')
-parser.add_argument('-ms', '--minimum_size', default=10, type=float, help='The minimum plaque size parameter in microns for the localisation step (default=10)')
-parser.add_argument('-df', '--downscale_factor', default=16, type=int, help='The downsampling factor used for creating the grey matter segmentation (default=16)')
+cli.add_io_settings(parser)
+cli.add_segmentation_settings(parser)
+cli.add_localisation_settings(parser)
 parser.add_argument('-ss', '--segmentation_setting', choices=['no', 'load', 'create'], default='create', help='The way the grey matter segmentation is handled. \n \'no\' skips the segmentation \n \'load\' loads the segmentation from the result file located in the target_folder \n \'create\' creates a new segmentation and stores it in the target_folder.')
 
 
@@ -43,6 +38,7 @@ target_folder = args.target_folder
 # parameters segmentation
 patch_size_segmentation = args.patch_size_segmentation
 downscale_factor = args.downscale_factor
+model_path = args.model_path
 segmentation_setting = args.segmentation_setting
 
 # parameters localisation
@@ -56,7 +52,7 @@ minsize = int(min_size_micron / 0.274)
 cuda_availible = torch.cuda.is_available()
 if segmentation_setting == 'create' and cuda_availible:
     print('cuda:', cuda_availible)
-    model = unet('models/2023-03-15-unet-16x-bs16-ps256-lr0.0001/2023-03-15-unet-16x-bs16-ps256-lr0.0001-e3v49.pt')
+    model = unet(model_path)
 elif segmentation_setting == 'create' and not cuda_availible:
     print('GPU requested, but CUDA is not available, exiting.')
     sys.exit()
