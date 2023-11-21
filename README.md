@@ -28,3 +28,16 @@ This script creates a result file in the target folder. This file is stored in H
       - __plaque__: An array that contains an image of the plaque in RGB. It is cropped from the original image using the bounding box. 
 
 > :warning: For all the results that are given in micrometers or millimeters the code assumes that each pixel in the original image is 0.274 by 0.274 micrometers.
+
+## Usable scripts
+This is a list of scripts that are updated and cleaned up. They should be runnable without much issue and have some documentation in the form of a `--help` command. 
+- localisation
+  - loc.py: runs the segmentation and localisation pipeline for a single image file.
+  - loc_series.py: runs the segmentation and localisation pipeline for a series of image files in the same folder.
+- segmentation:
+  - segment.py: runs the segmentation pipeline for a single image file.
+  - loc_series.py: runs the segmentation pipeline for a series of image files in the same folder.
+
+This list was last updated on November 21st 2023
+
+

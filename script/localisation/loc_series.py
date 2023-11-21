@@ -6,7 +6,7 @@ import argparse
 import src.util.cli as cli
 
 print('starting')
-parser = argparse.ArgumentParser()
+parser = argparse.ArgumentParser(prog='plaque localisation - series', description='An algorithm that can find Ab plaques in multiple vsi file')
 cli.add_io_settings(parser)
 cli.add_segmentation_settings(parser)
 cli.add_localisation_settings(parser)

@@ -15,7 +15,7 @@ import src.util.cli as cli
 
 start = time.time()
 
-parser = argparse.ArgumentParser(prog='Segmentation', description='An algorithm that can segment grey matter from a vsi file')
+parser = argparse.ArgumentParser(prog='Grey matter segmentation', description='An algorithm that can segment grey matter from a vsi file')
 parser.add_argument('image', type=str, help='The name of the vsi file that needs to be analysed. Omit .vsi in the name.')
 cli.add_io_settings(parser)
 cli.add_segmentation_settings(parser)
