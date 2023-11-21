@@ -69,6 +69,7 @@ if 'plaques' in result_file:
     print('old plaques deleted')
 plaque_group = result_file.create_group('plaques')
 
+# this line sets the index of the full size image in the vsi file (see readme).
 full_index = 13 if image_name[:5] == 'Image' else 0
 
 jvm.start()
