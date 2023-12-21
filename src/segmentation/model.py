@@ -21,7 +21,7 @@ def unet(model_file=''):
 
 
 def get_model_file_path(name: str, version: str):
-    return f'models/{name}/{name}-{version}.pt'
+    return f'models/unet/{name}-{version}.pt'
 
 
 def get_model_name(name, model_type, downsample_lvl, batch_size, patch_size, learning_rate):

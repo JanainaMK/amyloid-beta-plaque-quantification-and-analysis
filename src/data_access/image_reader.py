@@ -12,20 +12,25 @@ class ImageReader(data.Dataset, IterMixIn):
         self.patch_size = patch_size
         self.stride = stride
         self.dtype = dtype
-
         self.shape = self.data.shape
+        
+        # Stores Patchifyer with generated patches from the image
         self.patch_it = Patchifyer(self.shape[1], self.shape[2], self.patch_size, self.stride)
 
     def __len__(self):
+        # Returns the number of generated patches
         return len(self.patch_it)
 
     def __getitem__(self, item):
-        r, c = self.patch_it[item]
-        return self.data[:, r:r+self.patch_size, c:c+self.patch_size].astype(self.dtype)
+        # Retrieves a patch as an image at a given index
+        row, col = self.patch_it[item]
+        return self.data[:, row:row+self.patch_size, col:col+self.patch_size].astype(self.dtype)
 
     def get_full(self):
+        # Retrieves the full image data
         return self.data[()].astype(self.dtype)
 
     def get_full_channel(self, channel):
+        # Retrieves the full image data for a specific channel
         return self.data[channel].astype(self.dtype)
 

@@ -24,11 +24,3 @@ def generate_hog_features(image: np.ndarray):
     if image.shape != (256, 256):
         raise ValueError('Input image should have shape (256, 256), instead it is', image.shape)
     return hog(image, orientations=8, pixels_per_cell=(64, 64), cells_per_block=(2, 2))
-
-
-
-
-
-
-
-  

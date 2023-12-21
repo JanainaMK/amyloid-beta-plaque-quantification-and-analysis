@@ -1,6 +1,7 @@
---extra-index-url https://download.pytorch.org/whl/cu113
-torch==1.12.0+cu113
-torchvision==0.13.0+cu113
+--extra-index-url https://download.pytorch.org/whl/cu121
+torch
+torchvision
+torchaudio
 matplotlib
 numpy
 scipy
@@ -11,4 +12,3 @@ python-bioformats
 scikit-image
 scikit-learn
 joblib
-

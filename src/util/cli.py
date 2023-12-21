@@ -11,7 +11,7 @@ def add_segmentation_settings(parser: ArgumentParser):
                         help='The patch size in pixels used in the segmentation step (default=1024)')
     parser.add_argument('-df', '--downscale_factor', default=16, type=int,
                         help='The downsampling factor used for creating the grey matter segmentation (default=16)')
-    parser.add_argument('-mp', '--model_path', default='models/2023-03-15-unet-16x-bs16-ps256-lr0.0001/2023-03-15-unet-16x-bs16-ps256-lr0.0001-e3v49.pt', type=str,
+    parser.add_argument('-mp', '--model_path', default='models/unet/2023-03-15-unet-16x-bs16-ps256-lr0.0001-e3v49.pt', type=str,
                         help='The path to the unet model trained for the segmentation task.')
 
 def add_localisation_settings(parser: ArgumentParser):
@@ -29,3 +29,4 @@ def add_series_settings(parser: ArgumentParser):
                         help='The index of the file in the source folder where the script should start')
     parser.add_argument('-s1', '--stop', default=2**32 - 1, type=int,
                         help='The index of the file in the source folder where the script should stop (exclusive)')
+    
