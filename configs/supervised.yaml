@@ -1,0 +1,47 @@
+data_params:
+  all_images_path: result/images
+  labeled_images_path: result/labeled_images
+  labeled_idx_file: labeled_plaque_samples/labelfileidx.npz
+  data_split_path: result/images_train_test.json
+  train_batch_size: 32
+  val_batch_size: 32
+  patch_size: 128
+  num_workers: 4
+  n_folds: 5
+  val_size: 5
+  train_sizes: [23]
+  n_trials: 40
+  
+model_params:
+  num_classes: 9
+  model_type: moco
+  # model_type: simclr
+  weight_decay: 0.0001
+  learning_rate: 0.0001
+  dropout_probability: 0.1
+  hidden_dim: 2048
+  
+prediction_params:
+  use_labeled_data: False # predict on labeled plaques instead of unlabeled
+  assignment_save_path: 'result/class_assignment'
+  report_save_path: 'result/class_report'
+
+evaluate_params:
+  primary_labels: [0,1,2,3,4,5]
+  anomaly_labels: [6,7,8]
+  generate_thresholds: True # specify whether evaluation is being run to generate thresholds. True will only evaluate on validation instead of test sets.
+  start_version: 0 # model version/fold to start loading from
+
+exp_params:
+  manual_seed: 236
+
+run_params:
+  gpus: [0]
+
+trainer_params:
+  accelerator: gpu
+  max_epochs: 100
+
+logging_params:
+  save_dir: models/categorisation/
+  name: resnet50_moco

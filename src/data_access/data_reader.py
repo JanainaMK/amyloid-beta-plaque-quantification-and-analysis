@@ -2,14 +2,22 @@ import h5py
 import numpy as np
 from torch.utils.data import Dataset
 
+from src.util import LabelEnum
+
 from .combined_reader import CombinedReader
 from .iter_mix_in import IterMixIn
 
-from src.util import LabelEnum
-
 
 class DatasetReader(Dataset, IterMixIn):
-    def __init__(self, data_group: h5py.Group, patch_size: int, stride: int, downsample_lvl: int, label_type: LabelEnum, dtype=np.float64):
+    def __init__(
+        self,
+        data_group: h5py.Group,
+        patch_size: int,
+        stride: int,
+        downsample_lvl: int,
+        label_type: LabelEnum,
+        dtype=np.float64,
+    ):
         self.data_group = data_group
         self.patch_size = patch_size
         self.stride = stride
@@ -30,14 +38,16 @@ class DatasetReader(Dataset, IterMixIn):
         # Initializes a list of CombinedReader instances for each image in the dataset
         readers = []
         for image_name in self.image_list:
-            readers.append(CombinedReader(
-                self.data_group[image_name],
-                self.patch_size,
-                self.stride,
-                self.downsample_lvl,
-                self.label_type,
-                self.dtype,
-            ))
+            readers.append(
+                CombinedReader(
+                    self.data_group[image_name],
+                    self.patch_size,
+                    self.stride,
+                    self.downsample_lvl,
+                    self.label_type,
+                    self.dtype,
+                )
+            )
         return readers
 
     def calculate_cumulative_length(self):
@@ -53,7 +63,7 @@ class DatasetReader(Dataset, IterMixIn):
 
     def __getitem__(self, i):
         # Retrieves an item at a given global index.
-        # Converts the global index to two indices: 
+        # Converts the global index to two indices:
         # an image index pointing to an image in the dataset
         # a local index pointing to an item in the CombinedReader of the image
         image_index, local_index = self.convert_global_index(i)
@@ -66,20 +76,24 @@ class DatasetReader(Dataset, IterMixIn):
     def convert_global_index(self, global_index: int):
         # Finds the appropriate image and local indices given a global index
         if global_index >= len(self):
-            raise IndexError(f'index out of bounds: {global_index} of {len(self)}')
+            raise IndexError(f"index out of bounds: {global_index} of {len(self)}")
         return self.search(0, self.num_images - 1, global_index)
 
     def search(self, low: int, high: int, global_index: int):
         # Uses binary search to find image and local indices associated with a global index
         if high == low:
             image_index = low
-            local_index = global_index - self.cumulative_length[low-1] if low != 0 else global_index
+            local_index = (
+                global_index - self.cumulative_length[low - 1]
+                if low != 0
+                else global_index
+            )
             return image_index, local_index
         mid = int(np.floor((high + low) / 2))
         if global_index < self.cumulative_length[mid]:
             return self.search(low, mid, global_index)
         else:
-            return self.search(mid+1, high, global_index)
+            return self.search(mid + 1, high, global_index)
 
     def get_reader(self, i):
         # Retrieves a CombinedReader given a global index

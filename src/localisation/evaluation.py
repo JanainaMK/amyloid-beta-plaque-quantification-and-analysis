@@ -11,13 +11,13 @@ def get_labels(annotations: h5py.Group, return_masks):
     labels = [None] * len(annotations)
     for i, name in enumerate(annotations):
         bb = BoundingBox(
-            annotations[f'{name}/x'][()],
-            annotations[f'{name}/y'][()],
-            annotations[f'{name}/w'][()],
-            annotations[f'{name}/h'][()],
+            annotations[f"{name}/x"][()],
+            annotations[f"{name}/y"][()],
+            annotations[f"{name}/w"][()],
+            annotations[f"{name}/h"][()],
         )
         if return_masks:
-            mask = annotations[f'{name}/shape'][()]
+            mask = annotations[f"{name}/shape"][()]
             labels[i] = PlaqueMask(mask, bb)
         else:
             labels[i] = bb
@@ -49,8 +49,12 @@ def calculate_mask_iou(pm0: PlaqueMask, pm1: PlaqueMask):
 
 
 def calculate_mask_iop(prediction: PlaqueMask, label: PlaqueMask):
-    width = max(prediction.bb.x + prediction.bb.w, label.bb.x + label.bb.w) - min(prediction.bb.x, label.bb.x)
-    height = max(prediction.bb.y + prediction.bb.h, label.bb.y + label.bb.h) - min(prediction.bb.y, label.bb.y)
+    width = max(prediction.bb.x + prediction.bb.w, label.bb.x + label.bb.w) - min(
+        prediction.bb.x, label.bb.x
+    )
+    height = max(prediction.bb.y + prediction.bb.h, label.bb.y + label.bb.h) - min(
+        prediction.bb.y, label.bb.y
+    )
     if width >= prediction.bb.w + label.bb.w or height >= prediction.bb.h + label.bb.h:
         return 0
     overlap = np.zeros((height, width), dtype=np.uint8)
@@ -63,15 +67,15 @@ def calculate_mask_iop(prediction: PlaqueMask, label: PlaqueMask):
 def paste_plaque_mask(target: np.ndarray, pm: PlaqueMask):
     x0 = min(pm.bb.x, pm.bb.x) - pm.bb.x
     y0 = min(pm.bb.y, pm.bb.y) - pm.bb.y
-    target[y0:y0+pm.bb.h, x0:x0+pm.bb.w] += pm.mask.astype(np.uint8)
+    target[y0 : y0 + pm.bb.h, x0 : x0 + pm.bb.w] += pm.mask.astype(np.uint8)
     return target
 
 
 def make_performance_matrix(predictions, ground_truth, func):
     if len(predictions) == 0:
-        raise ValueError('There are no predictions to make the performance matrix')
+        raise ValueError("There are no predictions to make the performance matrix")
     if len(ground_truth) == 0:
-        raise ValueError('There is no ground truth to make the performance matrix')
+        raise ValueError("There is no ground truth to make the performance matrix")
     matrix = np.zeros((len(predictions), len(ground_truth)))
     for i, pred in enumerate(predictions):
         for j, label in enumerate(ground_truth):
@@ -80,7 +84,9 @@ def make_performance_matrix(predictions, ground_truth, func):
 
 
 def make_bounding_box_iou_matrix(predictions, ground_truth):
-    return make_performance_matrix(predictions, ground_truth, calculate_bounding_box_iou)
+    return make_performance_matrix(
+        predictions, ground_truth, calculate_bounding_box_iou
+    )
 
 
 def make_mask_iou_matrix(predictions, ground_truth):
@@ -130,27 +136,29 @@ def evaluate(predictions, ground_truth, threshold, strict, matrix_func):
 
 
 def evaluate_bounding_boxes(predictions, ground_truth, threshold, strict):
-    return evaluate(predictions, ground_truth, threshold, strict, make_bounding_box_iou_matrix)
+    return evaluate(
+        predictions, ground_truth, threshold, strict, make_bounding_box_iou_matrix
+    )
 
 
 def evaluate_masks(predictions, ground_truth, threshold, strict):
     return evaluate(predictions, ground_truth, threshold, strict, make_mask_iop_matrix)
 
 
-EVAL_FILE = 'evaluation/localisation-proper.hdf5'
+EVAL_FILE = "evaluation/localisation-proper.hdf5"
 
 
 def write_evaluation_to_hdf5(param_string: str, confusion_matrix: ConfusionMatrix):
     while True:
         try:
-            file = h5py.File(EVAL_FILE, 'a')
+            file = h5py.File(EVAL_FILE, "a")
             group = file.create_group(param_string)
-            group.attrs['TP'] = confusion_matrix.TP
-            group.attrs['FP'] = confusion_matrix.FP
-            group.attrs['FN'] = confusion_matrix.FN
-            group.attrs['TN'] = confusion_matrix.TN
-            group.attrs['precision'] = confusion_matrix.precision()
-            group.attrs['recall'] = confusion_matrix.recall()
+            group.attrs["TP"] = confusion_matrix.TP
+            group.attrs["FP"] = confusion_matrix.FP
+            group.attrs["FN"] = confusion_matrix.FN
+            group.attrs["TN"] = confusion_matrix.TN
+            group.attrs["precision"] = confusion_matrix.precision()
+            group.attrs["recall"] = confusion_matrix.recall()
             file.close()
             break
         except OSError:
@@ -158,20 +166,12 @@ def write_evaluation_to_hdf5(param_string: str, confusion_matrix: ConfusionMatri
 
 
 def print_eval():
-    file = h5py.File(EVAL_FILE, 'r')
+    file = h5py.File(EVAL_FILE, "r")
     for key in file:
-        p = f'{key}/precision'
-        r = f'{key}/recall'
-        print(key.rjust(20), f'avg precision:{file[p][()]:.3f}\tavg recall:{file[r][()]:.3f}')
+        p = f"{key}/precision"
+        r = f"{key}/recall"
+        print(
+            key.rjust(20),
+            f"avg precision:{file[p][()]:.3f}\tavg recall:{file[r][()]:.3f}",
+        )
     file.close()
-
-
-
-
-
-
-
-
-
-
-

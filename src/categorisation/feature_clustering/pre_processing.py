@@ -23,4 +23,3 @@ def alex_prep(image: np.ndarray):
 def hog_prep(image: np.ndarray):
     resized = resize(image, (256, 256))
     return resized
-

@@ -1,4 +1,3 @@
-
 class ConfusionMatrix:
     def __init__(self, TP=0, FP=0, TN=0, FN=0):
         self.TP = TP
@@ -18,8 +17,7 @@ class ConfusionMatrix:
         return self.TP + self.FP + self.TN + self.FN
 
     def __str__(self):
-        return f'TP: {self.TP} FN: {self.FN}\n' \
-               f'FP: {self.FP} TN: {self.TN}'
+        return f"TP: {self.TP} FN: {self.FN}\n" f"FP: {self.FP} TN: {self.TN}"
 
     def precision(self):
         if self.TP == 0:

@@ -1,10 +1,11 @@
 import time
-import torch
+
 import numpy as np
+import torch
 
 from src.segmentation.model import save_model_from_name
 
-DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
+DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
 
 def train_epoch(model, data_loader, optim, criterion, info_it=None, print_times=False):
@@ -21,22 +22,27 @@ def train_epoch(model, data_loader, optim, criterion, info_it=None, print_times=
         running_loss += batch_loss
         info_loss += batch_loss
         model_end = time.time()
-        if info_it and (i+1) % info_it == 0:
+        if info_it and (i + 1) % info_it == 0:
             avg_info_loss = info_loss.item() / info_it
             print(
-                '\ttotal time', model_end - batch_start,
-                '\n\tloading time:', model_start - batch_start,
-                '\n\ttraining time:', model_end - model_start,
-                '\n\tbatch time including print:', time.time() - batch_start,
-                '\n\tavg loss:', avg_info_loss,
-                f'\n\tprogress: {(i+1) / len(data_loader) * 100}%',
-                '\n',
+                "\ttotal time",
+                model_end - batch_start,
+                "\n\tloading time:",
+                model_start - batch_start,
+                "\n\ttraining time:",
+                model_end - model_start,
+                "\n\tbatch time including print:",
+                time.time() - batch_start,
+                "\n\tavg loss:",
+                avg_info_loss,
+                f"\n\tprogress: {(i+1) / len(data_loader) * 100}%",
+                "\n",
             )
             info.append(avg_info_loss)
             info_loss = torch.zeros(1).detach().to(DEVICE)
         batch_start = time.time()
     avg_loss = running_loss.item() / len(data_loader)
-    print('train epoch done', time.time() - epoch_start)
+    print("train epoch done", time.time() - epoch_start)
     return avg_loss, info
 
 
@@ -66,16 +72,22 @@ def timed_train_iteration(model, data, optim, criterion):
     backward_time = time.time()
     res = loss.detach()
     detach_time = time.time()
-    item = loss.item()
     item_time = time.time()
     print(
-        '\n\ttotal time (no print):', detach_time - batch_start,
-        '\n\ttime to cuda:', cuda_time - batch_start,
-        '\n\tforward:', forward_time - cuda_time,
-        '\n\tbackward:', backward_time - forward_time,
-        '\n\tdetach time:', detach_time - backward_time,
-        '\n\titem time:', item_time - detach_time,
-        '\n\tprint time:', time.time() - item_time,
+        "\n\ttotal time (no print):",
+        detach_time - batch_start,
+        "\n\ttime to cuda:",
+        cuda_time - batch_start,
+        "\n\tforward:",
+        forward_time - cuda_time,
+        "\n\tbackward:",
+        backward_time - forward_time,
+        "\n\tdetach time:",
+        detach_time - backward_time,
+        "\n\titem time:",
+        item_time - detach_time,
+        "\n\tprint time:",
+        time.time() - item_time,
     )
     return res
 
@@ -83,7 +95,7 @@ def timed_train_iteration(model, data, optim, criterion):
 def validation_epoch(model, data_loader, criterion):
     model.eval()
     running_validation_loss = torch.zeros(1).detach().to(DEVICE)
-    for i, data in enumerate(data_loader):
+    for _, data in enumerate(data_loader):
         batch_loss = validation_iteration(model, data, criterion)
         running_validation_loss += batch_loss
     avg_validation_loss = running_validation_loss.item() / (len(data_loader))
@@ -118,27 +130,30 @@ def validate_partial_epoch(model, loader, criterion, num_samples):
 
 
 def train_epoch_interim_validation(
-        model,
-        train_loader,
-        validation_loader,
-        optim,
-        criterion,
-        val_per_epoch,
-        model_name,
-        epoch,
+    model,
+    train_loader,
+    validation_loader,
+    optim,
+    criterion,
+    val_per_epoch,
+    model_name,
+    epoch,
 ):
-    train_interval = int(np.floor(len(train_loader) / val_per_epoch))
     validation_interval = int(np.floor(len(validation_loader) / val_per_epoch))
-    train_data = iter(train_loader)
     validation_data = iter(validation_loader)
     train_loss = np.zeros(val_per_epoch)
     validation_loss = np.zeros(val_per_epoch)
 
     for k in range(val_per_epoch):
         # Training
-        train_loss[k] = train_partial_epoch(model, train_loader, optim, criterion, )
-        save_model_from_name(model, model_name, f'e{epoch}v{k}')
-        np.save(f'./loss/{model_name}/{model_name}-train-loss-e{epoch}.npy', train_loss)
+        train_loss[k] = train_partial_epoch(
+            model,
+            train_loader,
+            optim,
+            criterion,
+        )
+        save_model_from_name(model, model_name, f"e{epoch}v{k}")
+        np.save(f"./loss/{model_name}/{model_name}-train-loss-e{epoch}.npy", train_loss)
 
         # Validation
         model.eval()
@@ -147,16 +162,9 @@ def train_epoch_interim_validation(
             batch_loss = validation_iteration(model, next(validation_data), criterion)
             running_loss += batch_loss
         validation_loss[k] = running_loss.item() / validation_interval
-        np.save(f'./loss/{model_name}/{model_name}-validation-loss-e{epoch}.npy', validation_loss)
+        np.save(
+            f"./loss/{model_name}/{model_name}-validation-loss-e{epoch}.npy",
+            validation_loss,
+        )
 
     return train_loss, validation_loss
-
-
-
-
-
-
-
-
-
-

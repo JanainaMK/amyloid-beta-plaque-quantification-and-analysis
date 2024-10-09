@@ -167,3 +167,9 @@ cython_debug/
 /visuals
 /remote
 /loss
+/temp
+/evaluation
+/labeled_plaque_samples/labels
+/labeled_plaque_samples/samples
+/labeled_plaque_samples/labelfileidx.npz
+/models/categorisation/

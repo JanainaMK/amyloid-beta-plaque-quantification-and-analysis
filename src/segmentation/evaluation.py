@@ -1,16 +1,13 @@
-import os
 import time
 from collections import namedtuple
-import pprint
 
-import h5py
-import torch
 import numpy as np
+import torch
 from torch.utils.data import DataLoader
-from src.data_access import ImageReader
+
 from src.data_access import VsiReader
 
-DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
+DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
 
 def make_prediction_patch_based(model: torch.nn.Module, image):
@@ -28,15 +25,26 @@ def make_prediction_patch_based(model: torch.nn.Module, image):
             prediction = model(patch).detach()
 
             r = int(np.floor(i / patch_shape[1]))
-            c = (i % patch_shape[1])
+            c = i % patch_shape[1]
             if r > row_var:
-                print(f'row {r} done in {time.time() - time_var} seconds')
+                print(f"row {r} done in {time.time() - time_var} seconds")
                 row_var = r
                 time_var = time.time()
-            r_pixel = image.shape[0] - image.patch_size if r == patch_shape[0] - 1 else r * image.patch_size
-            c_pixel = image.shape[1] - image.patch_size if c == patch_shape[1] - 1 else c * image.patch_size
+            r_pixel = (
+                image.shape[0] - image.patch_size
+                if r == patch_shape[0] - 1
+                else r * image.patch_size
+            )
+            c_pixel = (
+                image.shape[1] - image.patch_size
+                if c == patch_shape[1] - 1
+                else c * image.patch_size
+            )
 
-            result[r_pixel: r_pixel + image.patch_size, c_pixel: c_pixel + image.patch_size] = prediction
+            result[
+                r_pixel : r_pixel + image.patch_size,
+                c_pixel : c_pixel + image.patch_size,
+            ] = prediction
 
         return result
     else:
@@ -52,15 +60,26 @@ def make_prediction_patch_based(model: torch.nn.Module, image):
             prediction = model(patch).detach()
 
             r = int(np.floor(i / patch_shape[1]))
-            c = (i % patch_shape[1])
+            c = i % patch_shape[1]
             if r > row_var:
-                print(f'row {r} done in {time.time() - time_var} seconds')
+                print(f"row {r} done in {time.time() - time_var} seconds")
                 row_var = r
                 time_var = time.time()
-            r_pixel = image.shape[1] - image.patch_size if r == patch_shape[0] - 1 else r * image.patch_size
-            c_pixel = image.shape[2] - image.patch_size if c == patch_shape[1] - 1 else c * image.patch_size
+            r_pixel = (
+                image.shape[1] - image.patch_size
+                if r == patch_shape[0] - 1
+                else r * image.patch_size
+            )
+            c_pixel = (
+                image.shape[2] - image.patch_size
+                if c == patch_shape[1] - 1
+                else c * image.patch_size
+            )
 
-            result[r_pixel: r_pixel + image.patch_size, c_pixel: c_pixel + image.patch_size] = prediction
+            result[
+                r_pixel : r_pixel + image.patch_size,
+                c_pixel : c_pixel + image.patch_size,
+            ] = prediction
 
         return result
 
@@ -87,7 +106,7 @@ def dice(prediction: torch.Tensor, target: torch.Tensor):
     return 2 * intersection / denominator
 
 
-Result = namedtuple('Result', ['index', 'score', 'image'])
+Result = namedtuple("Result", ["index", "score", "image"])
 
 
 def get_best(scores, images):
@@ -103,8 +122,3 @@ def get_median(scores, images):
 def get_worst(scores, images):
     i = np.argmin(scores)
     return Result(i, scores[i], images[i])
-
-
-
-
-

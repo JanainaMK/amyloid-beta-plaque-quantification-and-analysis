@@ -1,5 +1,6 @@
 from enum import Enum
 
+
 class LabelEnum(Enum):
     NO = 0
     CLASS_AVG = 1

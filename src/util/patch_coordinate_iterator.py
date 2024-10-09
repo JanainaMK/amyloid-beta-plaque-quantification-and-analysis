@@ -3,15 +3,16 @@ import math
 
 class PatchCoordinateIterator:
     """
-    An interator that iterates over patches in a matrix-like structure. It returns the top left coordinates of each
-    patch during iteration.
+    An interator that iterates over patches in a matrix-like structure.
+    It returns the top left coordinates of each patch during iteration.
     """
+
     def __init__(
-            self,
-            width: int,
-            height: int,
-            patch_size: int,
-            stride: int,
+        self,
+        width: int,
+        height: int,
+        patch_size: int,
+        stride: int,
     ):
         """
         Constructor for the iterator
@@ -66,15 +67,10 @@ class PatchCoordinateIterator:
 
     def __getitem__(self, i):
         if i >= len(self) or i < 0:
-            raise IndexError(f'index out of bounds: {i} of {len(self)}')
-        row = math.floor(i/self.num_height)
+            raise IndexError(f"index out of bounds: {i} of {len(self)}")
+        row = math.floor(i / self.num_height)
         column = i % self.num_height
         return self.to_pixel(row, column)
 
     def __len__(self):
         return self.num_height * self.num_width
-
-
-
-
-

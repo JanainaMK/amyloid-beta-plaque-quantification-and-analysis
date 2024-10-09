@@ -2,15 +2,19 @@ import cv2
 import numpy as np
 import torch
 
-DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
+DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
 
 class Matrix:
     def __init__(self, matrix: np.ndarray):
         if len(matrix.shape) != 3:
-            raise ValueError(f'input must be a color matrix. current shape {matrix.shape}')
+            raise ValueError(
+                f"input must be a color matrix. current shape {matrix.shape}"
+            )
         if matrix.shape[2] != 3:
-            raise ValueError(f'color matrix should have shape (h, w, 3). current shape {matrix.shape}')
+            raise ValueError(
+                f"color matrix should have shape (h, w, 3). current shape {matrix.shape}"
+            )
         self.matrix = matrix
 
     def to_skimg(self):

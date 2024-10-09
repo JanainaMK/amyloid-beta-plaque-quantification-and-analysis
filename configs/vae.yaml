@@ -1,0 +1,24 @@
+data_params:
+  all_images_path: result/images
+  data_split_path: result/images_train_test.json
+  train_batch_size: 64
+  val_batch_size: 64
+  patch_size: 32
+  num_workers: 6
+  latent_dim: 256
+  model_type: 'vae'
+
+exp_params:
+  manual_seed: 134
+
+run_params:
+  gpus: [0]
+
+trainer_params:
+  accelerator: 'gpu'
+  max_epochs: 100
+
+logging_params:
+  save_dir: models/categorisation/
+  name: "bolt_VAE"
+  

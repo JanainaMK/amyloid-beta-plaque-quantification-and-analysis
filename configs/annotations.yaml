@@ -1,0 +1,32 @@
+data_params:
+  all_images_path: result/images
+  labeled_images_path: result/labeled_images_example
+  labeled_idx_file: labeled_plaque_samples/labelfileidx.npz
+  data_split_path: result/images_train_test.json
+  train_batch_size: 32
+  val_batch_size: 32
+  patch_size: 128
+  num_workers: 4
+  n_folds: 5
+  val_size: 5
+  train_sizes: [23]
+  n_trials: 40
+
+samples_param:
+  save_dir: 'labeled_plaque_samples'
+  samples_save_dir: 'samples'
+  labeled_vis_save_dir: 'labels'
+  labeled_plaques_save_file: 'labelfileidx_example.npz'
+  labeled_plaques_read_file: 'labeled_data_example.csv'
+  label_names_read_file: 'label_names.csv'
+  n_samples: 3
+  start_sample_num: 0
+  n_cols: 10
+  n_rows: 10
+  img_size: 128
+  
+exp_params:
+  manual_seed: 236
+
+run_params:
+  gpus: [0]

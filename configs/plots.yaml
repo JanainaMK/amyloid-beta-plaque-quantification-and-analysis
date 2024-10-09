@@ -1,0 +1,12 @@
+params:
+  all_images_path: 'result/images'
+  assignments_path: 'result/class_assignment/resnet50_moco.npz'
+  cent_dir: 'dataset/Abeta images 100+'
+  ad_dir: 'dataset/Abeta images AD cohort'
+  primary_labels: [0,1,2,3,4,5]
+  plot_save_path: 'result/stats_plots'
+  load_file: 'result/class_load/resnet50_moco.npz'
+  participant_data_file: 'result/participant_data.csv'
+
+exp_params:
+  manual_seed: 236

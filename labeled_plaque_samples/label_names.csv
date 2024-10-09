@@ -1,0 +1,10 @@
+Name,Value
+Diffuse,0
+Cored,1
+Compact,2
+Coarse,3
+CAA,4
+Subpial,5
+OtherAB,6
+UndefAB,7
+NonAB,8
