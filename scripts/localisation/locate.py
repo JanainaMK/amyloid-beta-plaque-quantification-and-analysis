@@ -31,8 +31,9 @@ def main():
     vsi_folder = args.source_folder
 
     file_names = os.listdir(vsi_folder)
-    print(len(file_names), "files found in total")
-    vsi_files = file_names[start:stop]
+    vsi_files = [file for file in file_names if file.endswith('.vsi')]
+    vsi_files = vsi_files[start:stop]
+    print(len(vsi_files), "files found in total")
 
     print("processing", stop - start, f"slides ({start} - {stop})")
 
@@ -62,7 +63,7 @@ def main():
             vsi_name = os.path.splitext(vsi_name)[0]
             print("slide", i, ":", vsi_name)
 
-            with h5py.File(f"{target_folder}/{vsi_name}.hdf5", "w") as result_file:
+            with h5py.File(f"{target_folder}/{vsi_name}.hdf5", "a") as result_file:
                 if "plaques" in result_file:
                     del result_file["plaques"]
                     print("old plaques deleted")

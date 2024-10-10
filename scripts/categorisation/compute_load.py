@@ -8,7 +8,7 @@ from src.categorisation.file_filter import (
     get_participant_number,
     get_region_name,
 )
-from src.util.cli import parse_config
+from src.categorisation.cli import parse_config
 
 
 def main():

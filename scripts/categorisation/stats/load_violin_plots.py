@@ -8,7 +8,7 @@ from scipy.stats import mannwhitneyu
 
 from src.categorisation.stats import get_significance_level
 from src.categorisation.supervised.plaque_labels import get_label_names
-from src.util.cli import parse_config
+from src.categorisation.cli import parse_config
 
 
 # print more detailed stats for exact values

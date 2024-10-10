@@ -4,7 +4,7 @@ import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 
 from src.categorisation.plaques_dataset import PlaquesDataset
-from src.util.cli import parse_config
+from src.categorisation.cli import parse_config
 
 
 def create_image_matrices(

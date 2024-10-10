@@ -3,7 +3,7 @@ import os
 import h5py
 import numpy as np
 
-from src.util.cli import parse_config
+from src.categorisation.cli import parse_config
 
 
 # save a copy of the labeled plaques in a separate file

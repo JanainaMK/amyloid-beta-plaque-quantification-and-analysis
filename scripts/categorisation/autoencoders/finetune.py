@@ -16,7 +16,7 @@ from torchsummary import summary
 
 from src.categorisation.autoencoders.vae import VAE
 from src.categorisation.plaques_dataset import PlaquesDataset
-from src.util.cli import parse_config
+from src.categorisation.cli import parse_config
 
 
 def main():

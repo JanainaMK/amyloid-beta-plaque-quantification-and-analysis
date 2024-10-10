@@ -1,8 +1,5 @@
 from argparse import ArgumentParser
 
-import yaml
-from pytorch_lightning import seed_everything
-
 
 def add_io_settings(parser: ArgumentParser):
     parser.add_argument(
@@ -91,25 +88,3 @@ def add_series_settings(parser: ArgumentParser):
         type=int,
         help="The index of the file in the source folder where the script should stop (exclusive)",
     )
-
-
-def parse_config():
-    parser = ArgumentParser()
-    parser.add_argument(
-        "--config",
-        "-c",
-        dest="filename",
-        metavar="FILE",
-        help="path to the config file",
-    )
-    args = parser.parse_args()
-
-    with open(args.filename, "r") as file:
-        try:
-            config = yaml.safe_load(file)
-        except yaml.YAMLError as exc:
-            print(exc)
-
-    seed_everything(config["exp_params"]["manual_seed"], True)
-
-    return config

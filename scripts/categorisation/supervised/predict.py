@@ -8,7 +8,7 @@ import torch
 from src.categorisation.plaques_dataset import PlaquesDataset
 from src.categorisation.supervised.ensemble_model import EnsembleModel
 from src.categorisation.supervised.labeled_plaques_dataset import LabeledPlaquesDataset
-from src.util.cli import parse_config
+from src.categorisation.cli import parse_config
 
 
 def main():

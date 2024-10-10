@@ -1,21 +1,29 @@
 name: Abeta
 
 channels:
-  - conda-forge
   - pytorch
+  - nvidia
+  - conda-forge
   - bioconda
 
 dependencies:
 - python=3.9
-- pytorch::pytorch=1.12.0
-- pytorch::torchvision=0.13.0
-- cudatoolkit=11.3
-- matplotlib
-- scipy
-- conda-forge::python-javabridge
-- conda-forge::opencv
+- black
 - h5py
-- bioconda::python-bioformats
-- scikit-image
-- scikit-learn
+- isort=5.13.2
 - joblib
+- matplotlib
+- numpy=1.26.4
+- pandas
+- pillow=10.2.0
+- requests=2.32.3
+- scipy=1.12.0
+- scikit-image=0.22
+- scikit-learn=1.4
+- seaborn=0.13.2
+- conda-forge::lightning-bolts=0.7.0
+- conda-forge::optuna=4.0
+- conda-forge::opencv=4.10.0
+- conda-forge::pytorch-lightning=1.9
+- conda-forge::python-javabridge
+- bioconda::python-bioformats
