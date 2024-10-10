@@ -31,7 +31,7 @@ def main():
     vsi_folder = args.source_folder
 
     file_names = os.listdir(vsi_folder)
-    vsi_files = [file for file in file_names if file.endswith('.vsi')]
+    vsi_files = [file for file in file_names if file.endswith(".vsi")]
     vsi_files = vsi_files[start:stop]
     print(len(vsi_files), "files found in total")
 

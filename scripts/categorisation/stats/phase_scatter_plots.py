@@ -6,9 +6,9 @@ import pandas as pd
 import seaborn as sns
 from scipy.stats import mannwhitneyu
 
+from src.categorisation.cli import parse_config
 from src.categorisation.stats import get_significance_level
 from src.categorisation.supervised.plaque_labels import get_label_names
-from src.categorisation.cli import parse_config
 
 
 def main():

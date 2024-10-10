@@ -19,10 +19,10 @@ from sklearn.metrics import (
 )
 from sklearn.preprocessing import label_binarize
 
+from src.categorisation.cli import parse_config
 from src.categorisation.supervised.labeled_plaques_dataset import LabeledPlaquesDataset
 from src.categorisation.supervised.linear_classifier import LinearEvaluation
 from src.categorisation.supervised.plaque_labels import get_label_names
-from src.categorisation.cli import parse_config
 
 
 def main():

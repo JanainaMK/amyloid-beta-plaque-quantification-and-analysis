@@ -4,9 +4,9 @@ import os
 import matplotlib.pyplot as plt
 import numpy as np
 
+from src.categorisation.cli import parse_config
 from src.categorisation.file_filter import valid_region
 from src.categorisation.supervised.plaque_labels import get_label_names
-from src.categorisation.cli import parse_config
 
 
 def annotate_thousand(number):

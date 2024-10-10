@@ -3,8 +3,8 @@ import os
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 
-from src.categorisation.plaques_dataset import PlaquesDataset
 from src.categorisation.cli import parse_config
+from src.categorisation.plaques_dataset import PlaquesDataset
 
 
 def create_image_matrices(

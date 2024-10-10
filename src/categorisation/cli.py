@@ -3,6 +3,7 @@ from argparse import ArgumentParser
 import yaml
 from pytorch_lightning import seed_everything
 
+
 def parse_config():
     parser = ArgumentParser()
     parser.add_argument(

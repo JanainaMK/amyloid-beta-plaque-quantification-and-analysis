@@ -8,9 +8,9 @@ from pytorch_lightning import Callback, Trainer
 from pytorch_lightning.callbacks import EarlyStopping
 from pytorch_lightning.strategies import DDPStrategy
 
+from src.categorisation.cli import parse_config
 from src.categorisation.supervised.labeled_plaques_dataset import LabeledPlaquesDataset
 from src.categorisation.supervised.linear_classifier import LinearEvaluation
-from src.categorisation.cli import parse_config
 
 
 class ValidationLossCallback(Callback):

@@ -173,3 +173,4 @@ cython_debug/
 /labeled_plaque_samples/samples
 /labeled_plaque_samples/labelfileidx.npz
 /models/categorisation/
+/models

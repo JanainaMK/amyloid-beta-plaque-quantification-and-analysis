@@ -5,9 +5,9 @@ import numpy as np
 import pandas as pd
 from torchvision.transforms import ToPILImage
 
+from src.categorisation.cli import parse_config
 from src.categorisation.plaques_dataset import PlaquesDataset
 from src.categorisation.supervised.plaque_labels import equidistant_labels
-from src.categorisation.cli import parse_config
 
 
 def collect_labeled_plaques(
