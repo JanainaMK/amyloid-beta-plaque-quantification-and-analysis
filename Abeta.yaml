@@ -8,6 +8,9 @@ channels:
 
 dependencies:
 - python=3.9
+- pytorch::pytorch
+- pytorch::torchvision=0.17.1
+- pytorch::pytorch-cuda=12.1
 - black
 - h5py
 - isort=5.13.2
