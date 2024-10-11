@@ -73,12 +73,6 @@ class LinearEvaluation(LightningModule):
         )
         self.train_iters_per_epoch = self.num_samples // global_batch_size
 
-        self.classification_head = nn.Sequential(
-            nn.Flatten(),
-            nn.Dropout(p=dropout_probability),
-            nn.Linear(self.hidden_dim, self.num_classes, bias=True),
-        )
-
         if self.model_type == "simclr":
             weight_path = "https://pl-bolts-weights.s3.us-east-2.amazonaws.com/simclr/bolts_simclr_imagenet/simclr_imagenet.ckpt"
             model = SimCLR.load_from_checkpoint(weight_path, strict=False)
@@ -121,6 +115,12 @@ class LinearEvaluation(LightningModule):
 
         for param in self.encoder.parameters():
             param.requires_grad = True
+
+        self.classification_head = nn.Sequential(
+            nn.Flatten(),
+            nn.Dropout(p=dropout_probability),
+            nn.Linear(self.hidden_dim, self.num_classes, bias=True),
+        )
 
         print(f"loaded pre-trained model {self.model_type}")
 
