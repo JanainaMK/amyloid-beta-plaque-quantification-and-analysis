@@ -283,6 +283,7 @@ def main():
                 primary_auc.append(np.mean(class_roc_auc[primary_labels, fold_idx]))
                 anomaly_auc.append(np.mean(class_roc_auc[anomaly_labels, fold_idx]))
 
+            os.makedirs(eval_path_sub, exist_ok=True)
             if generate_thresholds:
                 print("Generated and saved fold thresholds")
                 print(fold_thresholds)
